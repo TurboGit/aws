@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2021, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -148,7 +148,7 @@ package body Ada2WSDL.Parser is
    function Type_Definition
      (Node : Type_Decl'Class;
       Base : Boolean) return Generator.Type_Data;
-   --  Likewise for a type-decle
+   --  Likewise for a type-decl
 
    function Type_Definition
      (Node : Type_Expr'Class;
@@ -1329,18 +1329,17 @@ package body Ada2WSDL.Parser is
          return Result;
       end Parser;
 
-      Context  : constant Analysis_Context :=
-                   Create_Context
-                     ("UTF-8",
-                      Unit_Provider =>
-                        (if Options.Project_Filename = Null_Unbounded_String
-                         then No_Unit_Provider_Reference
-                         else Load_Project));
-      Unit     : Analysis_Unit;
+      Context : constant Analysis_Context :=
+                  Create_Context
+                    ("UTF-8",
+                     Unit_Provider =>
+                       (if Options.Project_Filename = Null_Unbounded_String
+                        then No_Unit_Provider_Reference
+                        else Load_Project));
+      Unit    : constant Analysis_Unit :=
+                  Get_From_File (Context, To_String (Options.File_Name));
 
    begin
-      Unit := Get_From_File (Context, To_String (Options.File_Name));
-
       --  check for diagnostic infor in unit
 
       if Unit.Has_Diagnostics then
@@ -1404,14 +1403,14 @@ package body Ada2WSDL.Parser is
         (Node  : Base_Type_Decl'Class;
          First : Long_Long_Integer := Long_Long_Integer'Last;
          Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data;
+         return Generator.Type_Data;
       --  Same as above for integer and optional range
 
       function Register_Deferred_F
         (Node  : Base_Type_Decl'Class;
          First : Long_Float := Long_Float'Last;
          Last  : Long_Float := Long_Float'First)
-            return Generator.Type_Data;
+         return Generator.Type_Data;
       --  Same as above for float and optional range
 
       function Build_Type
@@ -1419,7 +1418,7 @@ package body Ada2WSDL.Parser is
          NS    : String := SOAP.Name_Space.Value (SOAP.Name_Space.XSD);
          First : Long_Long_Integer := Long_Long_Integer'Last;
          Last  : Long_Long_Integer := Long_Long_Integer'First)
-            return Generator.Type_Data
+         return Generator.Type_Data
       is (+NS, +Name,
           (if First = Long_Long_Integer'Last
            then Null_Unbounded_String

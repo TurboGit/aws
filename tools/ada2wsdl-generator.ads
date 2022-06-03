@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2018, AdaCore                     --
+--                     Copyright (C) 2003-2022, AdaCore                     --
 --                                                                          --
 --  This is free software;  you can redistribute it  and/or modify it       --
 --  under terms of the  GNU General Public License as published  by the     --
@@ -66,7 +66,7 @@ package Ada2WSDL.Generator is
    procedure Start_Array
      (NS, Name                     : String;
       Component_NS, Component_Type : String;
-      Length                   : Natural := 0);
+      Length                       : Natural := 0);
    --  Must be called when an array definition has been parsed
 
    -----------------
