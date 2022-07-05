@@ -1,0 +1,24 @@
+
+@@TABLE@@
+with @_WITHED_UNITS_@;
+@@END_TABLE@@
+
+with @_UNIT_NAME_@.Types;
+
+package @_UNIT_NAME_@.Server is
+
+   use @_UNIT_NAME_@.Types;
+
+   Port : constant := @_SERVER_PORT_@;
+
+@@TABLE@@
+   generic
+      with
+   function @_PROC_@_CB
+     (SOAPAction : String;
+      Payload    : SOAP.Message.Payload.Object;
+      Request    : AWS.Status.Data)
+      return AWS.Response.Data;
+@@END_TABLE@
+
+end @_UNIT_NAME_@.Server;

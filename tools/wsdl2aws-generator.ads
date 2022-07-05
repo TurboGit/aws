@@ -198,6 +198,9 @@ private
       HTTP_Version : HTTP_Protocol := HTTPv1;
       Endpoint     : Unbounded_String;
       Timeouts     : Client.Timeouts_Values := Client.No_Timeout;
+
+      Stub_Trans   : Templates.Translate_Set;
+      Skel_Trans   : Templates.Translate_Set;
    end record;
 
    function Get_Endpoint (O : Object; Location : String) return String

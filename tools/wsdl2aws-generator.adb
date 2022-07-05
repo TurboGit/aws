@@ -1063,6 +1063,7 @@ package body WSDL2AWS.Generator is
       procedure Input_Parameters is
          use type WSDL2AWS.WSDL.Types.Kind;
       begin
+         => PARAMETER_TYPE (As in Input_Parameters in wsdl2aws-generator-skel)
          if Input /= null then
             --  Input parameters
 
