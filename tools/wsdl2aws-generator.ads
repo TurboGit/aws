@@ -28,6 +28,7 @@
 ------------------------------------------------------------------------------
 
 with AWS.Client;
+with AWS.Templates;
 
 with SOAP.Name_Space;
 
@@ -199,8 +200,10 @@ private
       Endpoint     : Unbounded_String;
       Timeouts     : Client.Timeouts_Values := Client.No_Timeout;
 
-      Stub_Trans   : Templates.Translate_Set;
-      Skel_Trans   : Templates.Translate_Set;
+      Stub_S_Trans : Templates.Translate_Set; -- stub spec
+      Stub_B_Trans : Templates.Translate_Set; -- stub body
+      Skel_S_Trans : Templates.Translate_Set; -- skel spec
+      Skel_B_Trans : Templates.Translate_Set; -- skel body
    end record;
 
    function Get_Endpoint (O : Object; Location : String) return String

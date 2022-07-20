@@ -13,12 +13,12 @@ package @_UNIT_NAME_@.Server is
 
 @@TABLE@@
    generic
-      with
+      with procedure @_PROC_@
    function @_PROC_@_CB
      (SOAPAction : String;
       Payload    : SOAP.Message.Payload.Object;
       Request    : AWS.Status.Data)
       return AWS.Response.Data;
-@@END_TABLE@
+@@END_TABLE@@
 
 end @_UNIT_NAME_@.Server;

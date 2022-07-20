@@ -38,8 +38,8 @@ package body @_UNIT_NAME_@.Server is
       Response  : SOAP.Message.Response.Object;
       R_Params  : SOAP.Parameters.List;
    begin
-@@IF@@ @_DEBUG@
-      Put_Line ("[SERVER/@_PROC__CB] Payload recv : "
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Payload recv : "
                 & AWS.Status.Payload (Request));
       Put_Line ("[SERVER/@_PROC_@_CB] SOAPAction : & SOAPAction);
 
@@ -53,8 +53,8 @@ package body @_UNIT_NAME_@.Server is
       end if;
 
 @@IF@@ @_IS_RPC_@@
-@@IF@@ @_DEBUG@
-      Put_Line ("[SERVER/@_PROC__CB] Proc_Name : " & Proc_Name);
+@@IF@@ @_DEBUG_@
+      Put_Line ("[SERVER/@_PROC_@_CB] Proc_Name : " & Proc_Name);
 
 @@END_IF@@
       if Proc_Name /= @_SOAP_PROC_@ then
@@ -66,8 +66,8 @@ package body @_UNIT_NAME_@.Server is
       end if;
 
 @@END_IF@@
-@@END_IF@@
-@@IF@@ @_DEBUG@
+
+@@IF@@ @_DEBUG_@
       Put_Line ("[SERVER/@_PROC_@_CB] Payload : "
                 & SOAP.Message.XML.Image (Payload, Schema));
 
@@ -77,9 +77,23 @@ package body @_UNIT_NAME_@.Server is
 @@IF@@ @_PROC_HAS_INPUT_@ or @_PROC_HAS_OUTPUT_@
       declare
 @@TABLE@@
+@@IF@@ @_DECL_KIND_@ = "ARRAY"
+         @_DECL_NAME_@ : constant SOAP.Types.SOAP_Array :=
+                           SOAP.Parameters.Get (Params, "@_DECL_P_NAME_@");
+@@ELSIF@@ @_DECL_KIND_@ = "RECORD"
+         @_DECL_NAME_@ : constant SOAP.Types.SOAP_Record :=
+                           SOAP.Parameters.Get (Params, "@_DECL_P_NAME_@");
+@@ELSE@@
+         @_DECL_NAME_@ : constant SOAP.Types.SOAP_Array :=
+                           SOAP.Types.R (SOAP.Types.Empty_Object_Set,
+                                         "@_DECL_P_NAME_@");
+@@END_IF@@
+@@END_TABLE@@
+@@TABLE@@
          @_PARAMETER_NAME_@ : constant @_PARAMETER_TYPE_@ :=
                                 @_PARAMETER_FROM_SOAP_@;
 @@END_TABLE@@
+@@END_IF@@
       exception
          when E : others =>
             --  Here we have a problem with user's callback
@@ -89,7 +103,7 @@ package body @_UNIT_NAME_@.Server is
                  (SOAP.Message.Response.Error.Client,
                   "Error in @_PROC_@ (" & Exception_Message (E) & ")");
       end;
-@@END_TABLE@
+@@END_TABLE@@
       SOAP.Message.Set_Parameters (Response, R_Params);
       return SOAP.Message.Response.Build (Response, Schema);
    exception

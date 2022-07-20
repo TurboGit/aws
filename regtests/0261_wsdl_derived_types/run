@@ -1,0 +1,10 @@
+
+SP=$HOME/dev/builds
+
+export LD_LIBRARY_PATH=$SP/c-libiconv/build/install/lib
+
+$SP/c-aws/build/install/bin/wsdl2aws -f --doc alias.wsdl
+
+# diff -c urn-aws_tst-wsdl_enu-color_type_pkg.ads urn-aws_tst-wsdl_enu-color_type_pkg.ads2
+
+# scbi --run:"gprbuild -Palias" c-gprbuild c-aws

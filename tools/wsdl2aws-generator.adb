@@ -40,7 +40,6 @@ with GNAT.Calendar.Time_IO;
 
 with AWS.Containers.Key_Value;
 with AWS.Containers.String_Vectors;
-with AWS.Templates;
 with AWS.Utils;
 
 with SOAP.Types;
@@ -59,7 +58,7 @@ package body WSDL2AWS.Generator is
 
    use Ada;
 
-   --  All the templates files used to generate the code
+   --  All the templates files used to generate the type code
 
    Template_Enum_Ads      : constant String := "s-type-enum.tads";
    Template_Enum_Adb      : constant String := "s-type-enum.tadb";
@@ -1063,7 +1062,8 @@ package body WSDL2AWS.Generator is
       procedure Input_Parameters is
          use type WSDL2AWS.WSDL.Types.Kind;
       begin
-         => PARAMETER_TYPE (As in Input_Parameters in wsdl2aws-generator-skel)
+         --  => PARAMETER_TYPE (As in Input_Parameters
+         --     in wsdl2aws-generator-skel)
          if Input /= null then
             --  Input parameters
 
@@ -3332,8 +3332,8 @@ package body WSDL2AWS.Generator is
       end if;
 
       if O.Gen_Skel then
-         Create (Skel_Ads, LL_Name & "-server.ads");
-         Create (Skel_Adb, LL_Name & "-server.adb");
+         Create (Skel_Ads, "OLD_" & LL_Name & "-server.ads");
+         Create (Skel_Adb, "OLD_" & LL_Name & "-server.adb");
       end if;
 
       if O.Gen_CB then

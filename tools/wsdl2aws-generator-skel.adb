@@ -33,6 +33,55 @@ with AWS.Utils;
 separate (WSDL2AWS.Generator)
 package body Skel is
 
+   use Templates;
+
+   Template_Skel_Ads : constant String := "s-skel.tads";
+   Template_Skel_Adb : constant String := "s-skel.tadb";
+
+   procedure Add_TagV
+     (Set                  : in out Templates.Translate_Set;
+      Assoc_Name, Tag_Name : String);
+
+   procedure Add_TagV
+     (Set        : in out Templates.Translate_Set;
+      Assoc_Name : String;
+      Value      : Boolean);
+
+   --------------
+   -- Add_TagV --
+   --------------
+
+   procedure Add_TagV
+     (Set                  : in out Templates.Translate_Set;
+      Assoc_Name, Tag_Name : String)
+   is
+      T : Templates.Tag;
+   begin
+      if Templates.Exists (Set, Assoc_Name) then
+         T := Templates.Get (Templates.Get (Set, Assoc_Name));
+      end if;
+
+      T := T & Tag_Name;
+
+      Templates.Insert (Set, Templates.Assoc (Assoc_Name, T));
+   end Add_TagV;
+
+   procedure Add_TagV
+     (Set        : in out Templates.Translate_Set;
+      Assoc_Name : String;
+      Value      : Boolean)
+   is
+      T : Templates.Tag;
+   begin
+      if Templates.Exists (Set, Assoc_Name) then
+         T := Templates.Get (Templates.Get (Set, Assoc_Name));
+      end if;
+
+      T := T & Value;
+
+      Templates.Insert (Set, Templates.Assoc (Assoc_Name, T));
+   end Add_TagV;
+
    -----------------
    -- End_Service --
    -----------------
@@ -42,10 +91,13 @@ package body Skel is
       Name : String)
    is
       LL_Name : constant String :=
-                  Characters.Handling.To_Lower (Format_Name (O, Name));
+                  Characters.Handling.To_Lower (Format_Name (O, Name))
+                  & "-server";
    begin
-      Generate (LL_Name & ".ads", Skel_Template, O.Skel_Trans);
-      Generate (LL_Name & ".adb", Skel_Template, O.Stub_Trans);
+      Text_IO.Put_Line ("Generate : " & LL_Name);
+
+      Generate (LL_Name & ".ads", Template_Skel_Ads, O.Skel_S_Trans);
+      Generate (LL_Name & ".adb", Template_Skel_Adb, O.Skel_B_Trans);
    end End_Service;
 
    -------------------
@@ -63,11 +115,12 @@ package body Skel is
       Output        : WSDL.Parameters.P_Set;
       Fault         : WSDL.Parameters.P_Set)
    is
-      pragma Unreferenced (Wrapper_Name, Namespace, Fault);
+      pragma Unreferenced (Wrapper_Name, Namespace, Fault,
+                           Documentation);
 
       use all type SOAP.WSDL.Parameter_Type;
 
-      use Ada.Strings.Fixed;
+      --  use Ada.Strings.Fixed;
       use type SOAP.WSDL.Schema.Binding_Style;
       use type WSDL.Parameters.P_Set;
       use type WSDL.Types.Kind;
@@ -76,9 +129,14 @@ package body Skel is
       --  Output parameters
 
       L_Proc  : constant String := Format_Name (O, Proc);
-      Max_Len : Positive := 1;
-
       N       : WSDL.Parameters.P_Set;
+
+      Parameter_Name : Templates.Tag;
+      Parameter_Type : Templates.Tag;
+      Parameter_Get  : Templates.Tag;
+      Decl_Name      : Templates.Tag;
+      Decl_Kind      : Templates.Tag;
+      Decl_P_Name    : Templates.Tag;
 
       -----------------------
       -- Output_Parameters --
@@ -88,7 +146,7 @@ package body Skel is
          T_Name : constant String := WSDL.Types.Name (N.Typ);
          R      : WSDL.Parameters.P_Set;
       begin
-         ==> FROM_SOAP
+         --  ==> FROM_SOAP
          Text_IO.Put (Skel_Adb, "           := ");
 
          case N.Mode is
@@ -96,47 +154,39 @@ package body Skel is
                --  Check for Base64 case
 
                if SOAP.WSDL.To_Type (T_Name) = P_B64 then
-                  Text_IO.Put
-                    (Skel_Adb,
-                     " V (SOAP_Base64'(SOAP.Parameters.Get (Params, """);
-                  Text_IO.Put      (Skel_Adb, To_String (N.Name));
-                  Text_IO.Put_Line (Skel_Adb, """)));");
+                  Parameter_Get := Parameter_Get
+                    & "V (SOAP_Base64'(SOAP.Parameters.Get (Params, """
+                    & To_String (N.Name)
+                    & """)))";
 
                elsif SOAP.WSDL.To_Type (T_Name) = P_Character then
-                  Text_IO.Put
-                    (Skel_Adb,
-                     " SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """);
-                  Text_IO.Put      (Skel_Adb, To_String (N.Name));
-                  Text_IO.Put_Line (Skel_Adb, """));");
+                  Parameter_Get := Parameter_Get
+                    &  "SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """
+                    & To_String (N.Name)
+                    & """))";
 
                else
-                  Text_IO.Put
-                    (Skel_Adb, " SOAP.Parameters.Get (Params, """);
-                  Text_IO.Put      (Skel_Adb, To_String (N.Name));
-                  Text_IO.Put_Line (Skel_Adb, """);");
+                  Parameter_Get := Parameter_Get
+                    & "SOAP.Parameters.Get (Params, """
+                    & To_String (N.Name)
+                    & """)";
                end if;
 
             when WSDL.Types.K_Derived =>
-               Text_IO.Put
-                 (Skel_Adb,
-                  WSDL.Parameters.From_SOAP
-                    (N.all,
-                     Object =>
-                        "SOAP.Parameters.Get (Params, """
-                        & To_String (N.Name) & """)",
-                     Is_SOAP_Type => True));
-               Text_IO.Put_Line (Skel_Adb, ";");
+               Parameter_Get := Parameter_Get
+                 & WSDL.Parameters.From_SOAP
+                     (N.all,
+                      Object =>
+                         "SOAP.Parameters.Get (Params, """
+                         & To_String (N.Name) & """)",
+                      Is_SOAP_Type => True);
 
             when WSDL.Types.K_Enumeration =>
-               Text_IO.Put_Line
-                 (Skel_Adb, T_Name & "_Type'Value");
-
-               Text_IO.Put      (Skel_Adb, "                ");
-               Text_IO.Put
-                 (Skel_Adb,
-                  "(SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """);
-               Text_IO.Put      (Skel_Adb, To_String (N.Name));
-               Text_IO.Put_Line (Skel_Adb, """)));");
+               Parameter_Get := Parameter_Get
+                 & (T_Name & "_Type'Value"
+                    & "(SOAP.Utils.Get (SOAP.Parameters.Argument (Params, """
+                    & To_String (N.Name)
+                    & """)))");
 
             when WSDL.Types.K_Array =>
                raise Constraint_Error;
@@ -167,31 +217,28 @@ package body Skel is
    begin
       --  Spec
 
-      ==> TO BE DONE
-        . SOAP_ACTION_PREFIX (O.Prefix) ???
-        . SOAP_ACTION
-        . SOAP_PROC (Proc) = Prefix + Proc
-        . PROC (L_Proc)
-        . DEBUG
-        . IS_RPC
+      --  ==> TO BE DONE
+      --    . SOAP_ACTION_PREFIX (O.Prefix) ???
+      --    . SOAP_ACTION
+      --    . SOAP_PROC (Proc) = Prefix + Proc
+      --    . PROC (L_Proc)
+      --    . DEBUG
+      --    . IS_RPC
 
-      Put_Header       (Skel_Ads, O, Proc, Input, Output, Mode => Skel_Spec);
+      Add_TagV (O.Skel_S_Trans, "PROC", L_Proc);
+      Add_TagV (O.Skel_B_Trans, "PROC", L_Proc);
 
+      Add_TagV (O.Skel_S_Trans, "SOAP_ACTION", SOAPAction);
+      Add_TagV (O.Skel_B_Trans, "SOAP_ACTION", SOAPAction);
+
+      Add_TagV (O.Skel_B_Trans, "IS_RPC", O.Style = SOAP.WSDL.Schema.RPC);
+
+      Put_Header (Skel_Ads, O, Proc, Input, Output, Mode => Skel_Spec);
 
       if Input /= null or else Output /= null then
          Text_IO.Put_Line
            (Skel_Adb, "      declare");
       end if;
-
-      --  Find maximum parameter name length to align them
-
-      N := Input;
-
-      while N /= null loop
-         Max_Len := Positive'Max
-           (Max_Len, Format_Name (O, To_String (N.Name))'Length);
-         N := N.Next;
-      end loop;
 
       --  Input parameters
 
@@ -199,99 +246,92 @@ package body Skel is
 
       while N /= null loop
          declare
-            ==> COMPOUND_PARAMETER_NAME
-            ==> COMPOUND_PARAMETER_TYPE
-            ==> COMPOUND_PARAMETER_GET
+            --  ==> DECL_PARAMETER_NAME
+            --  ==> DECL_PARAMETER_TYPE
+            --  ==> DECL_PARAMETER_GET
             Q_Name : constant String :=
                        SOAP.Utils.To_Name
                          (WSDL.Types.Name (N.Typ, NS => True));
             T_Name : constant String := WSDL.Types.Name (N.Typ);
          begin
-            Text_IO.Put      (Skel_Adb, "         ");
-
             if N.Mode = WSDL.Types.K_Array then
-               Text_IO.Put_Line
-                 (Skel_Adb,
-                  To_String (N.Name) & "_"
-                  & Format_Name (O, T_Name) & "_Array : "
-                  & "constant SOAP.Types.SOAP_Array");
-               Text_IO.Put_Line
-                 (Skel_Adb,
-                  "           := SOAP.Parameters.Get (Params, """
-                  & To_String (N.Name) & """);");
-               Text_IO.Put      (Skel_Adb, "         ");
+               Decl_Kind := Decl_Kind & "ARRAY";
+               Decl_Name := Decl_Name
+                 & To_String (N.Name)
+                 & "_" & Format_Name (O, T_Name) & "_Array";
+               Decl_P_Name := Decl_P_Name
+                 & To_String (N.Name);
 
             elsif N.Mode = WSDL.Types.K_Record then
-               Text_IO.Put_Line
-                 (Skel_Adb,
-                  To_String (N.Name) & "_"
-                  & Format_Name (O, T_Name) & "_Record : "
-                  & "constant SOAP.Types.SOAP_Record");
+               Decl_Name := Decl_Name
+                 & To_String (N.Name)
+                 & "_" & Format_Name (O, T_Name) & "_Record";
+               Decl_P_Name := Decl_P_Name
+                 & To_String (N.Name);
 
                if N.P = null then
-                  --  An empty record, just build a corresponding object
-                  Text_IO.Put_Line
-                    (Skel_Adb,
-                     "           := SOAP.Types.R (SOAP.Types.Empty_Object_Set"
-                     & ", """ & To_String (N.Name) & """);");
+                  Decl_Kind := Decl_Kind & "NULL_RECORD";
                else
-                  Text_IO.Put_Line
-                    (Skel_Adb,
-                     "           := SOAP.Parameters.Get (Params, """
-                     & To_String (N.Name) & """);");
+                  Decl_Kind := Decl_Kind & "RECORD";
                end if;
 
-               Text_IO.Put      (Skel_Adb, "         ");
             end if;
 
-            declare
-               => PARAMETER_NAME
-               Name : constant String :=
-                        Format_Name (O, To_String (N.Name));
-            begin
-               Text_IO.Put   (Skel_Adb, Name);
-               Text_IO.Put   (Skel_Adb, (Max_Len - Name'Length) * ' ');
-            end;
+            Parameter_Name := Parameter_Name
+              & Format_Name (O, To_String (N.Name));
 
-            Text_IO.Put      (Skel_Adb, " : constant ");
-
-            => PARAMETER_TYPE (As in Input_Parameters in wsdl2aws-generator)
+            --  => PARAMETER_TYPE (As in Input_Parameters
+            --     in wsdl2aws - generator)
             case N.Mode is
                when WSDL.Types.K_Simple =>
-                  Text_IO.Put_Line
-                    (Skel_Adb, SOAP.WSDL.To_Ada (SOAP.WSDL.To_Type (T_Name)));
+                  Parameter_Type := Parameter_Type
+                    & SOAP.WSDL.To_Ada (SOAP.WSDL.To_Type (T_Name));
+
                   Output_Parameters (N);
 
                when WSDL.Types.K_Enumeration =>
-                  Text_IO.Put_Line (Skel_Adb, T_Name & "_Type");
+                  Parameter_Type := Parameter_Type
+                    & (T_Name & "_Type");
+
                   Output_Parameters (N);
 
                when WSDL.Types.K_Derived =>
-                  Text_IO.Put_Line (Skel_Adb, Q_Name & "_Type");
+                  Parameter_Type := Parameter_Type
+                    & (Q_Name & "_Type");
                   Output_Parameters (N);
 
                when WSDL.Types.K_Array =>
-                  Text_IO.Put_Line
-                    (Skel_Adb, Format_Name (O, T_Name) & "_Type");
-                  Text_IO.Put_Line
-                    (Skel_Adb, "           := To_"
-                     & Format_Name (O, T_Name) & "_Type (V ("
-                     & To_String (N.Name) & "_"
-                     & Format_Name (O, T_Name) & "_Array));");
+                  Parameter_Type := Parameter_Type
+                    & (Format_Name (O, T_Name) & "_Type");
+
+                  Parameter_Get := Parameter_Get
+                    & "To_"
+                    & Format_Name (O, T_Name) & "_Type (V ("
+                    & To_String (N.Name) & "_"
+                    & Format_Name (O, T_Name) & "_Array))";
 
                when WSDL.Types.K_Record =>
-                  Text_IO.Put_Line
-                    (Skel_Adb, Format_Name (O, T_Name) & "_Type");
-                  Text_IO.Put_Line
-                    (Skel_Adb, "           := To_"
-                     & Format_Name (O, T_Name) & "_Type ("
-                     & To_String (N.Name) & "_"
-                     & Format_Name (O, T_Name) & "_Record);");
+                  Parameter_Type := Parameter_Type
+                    & (Format_Name (O, T_Name) & "_Type");
+
+                  Parameter_Get := Parameter_Get
+                    & "To_"
+                    & Format_Name (O, T_Name) & "_Type ("
+                    & To_String (N.Name) & "_"
+                    & Format_Name (O, T_Name) & "_Record)";
             end case;
          end;
 
          N := N.Next;
       end loop;
+
+      O.Skel_B_Trans := O.Skel_B_Trans
+        & Templates.Assoc ("DECL_NAME", Decl_Name)
+        & Templates.Assoc ("DECL_P_NAME", Decl_P_Name)
+        & Templates.Assoc ("DECL_KIND", Decl_Kind)
+        & Templates.Assoc ("PARAMETER_NAME", Parameter_Name)
+        & Templates.Assoc ("PARAMETER_TYPE", Parameter_Type)
+        & Templates.Assoc ("PARAMETER_GET", Parameter_Get);
 
       --  Output parameters
 
@@ -454,7 +494,7 @@ package body Skel is
                           SOAP.WSDL.Name_Spaces.Get
                             (SOAP.Utils.NS (To_String (N.Elmt_Name)));
             begin
-               ==> TO_SOAP
+               --  ==> TO_SOAP
                case N.Mode is
                   when WSDL.Types.K_Simple =>
                      if Output.Next = null then
@@ -575,7 +615,7 @@ package body Skel is
       Documentation      : String;
       Location           : String)
    is
-      pragma Unreferenced (Root_Documentation);
+      pragma Unreferenced (Root_Documentation, Documentation);
 
       U_Name : constant String         := To_Unit_Name (Format_Name (O, Name));
       URL    : constant AWS.URL.Object :=
@@ -585,10 +625,10 @@ package body Skel is
    begin
       --  Spec
 
-      O.Skel_Trans := O.Skel_Trans
-        & Translate.Assoc ("UNIT_NAME", U_Name)
-        & Translate.Assoc ("SERVER_PORT", AWS.URL.Port (URL))
-        & Translate.Assoc ("DEBUG", O.Debug);
+      O.Skel_S_Trans := O.Skel_S_Trans
+        & Templates.Assoc ("UNIT_NAME", U_Name)
+        & Templates.Assoc ("SERVER_PORT", Positive'(AWS.URL.Port (URL)))
+        & Templates.Assoc ("DEBUG", O.Debug);
 
       S_With := S_With
         & "Ada.Calendar"
@@ -598,14 +638,15 @@ package body Skel is
         & "SOAP.Message.Payload"
         & "SOAP.Types";
 
-      O.Skel_Trans := O.Skel_Trans & Templates.Assoc ("WITHED_UNITS", S_With);
+      O.Skel_S_Trans := O.Skel_S_Trans
+        & Templates.Assoc ("WITHED_UNITS", S_With);
 
       --  Body
 
-      O.Stub_Trans := O.Stub_Trans
-        & Translate.Assoc ("UNIT_NAME", U_Name)
-        & Translate.Assoc ("SERVER_PORT", AWS.URL.Port (URL))
-        & Translate.Assoc ("DEBUG", O.Debug);
+      O.Skel_B_Trans := O.Skel_B_Trans
+        & Templates.Assoc ("UNIT_NAME", U_Name)
+        & Templates.Assoc ("SERVER_PORT", Positive'(AWS.URL.Port (URL)))
+        & Templates.Assoc ("DEBUG", O.Debug);
 
       B_With := B_With
         & "Ada.Exceptions"
@@ -614,7 +655,8 @@ package body Skel is
         & "SOAP.Parameters"
         & "SOAP.Utils";
 
-      O.Stub_Trans := O.Stub_Trans & Templates.Assoc ("WITHED_UNITS", B_With);
+      O.Skel_B_Trans := O.Skel_B_Trans
+        & Templates.Assoc ("WITHED_UNITS", B_With);
    end Start_Service;
 
 end Skel;
