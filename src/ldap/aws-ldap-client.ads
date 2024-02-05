@@ -1,7 +1,7 @@
 ------------------------------------------------------------------------------
 --                              Ada Web Server                              --
 --                                                                          --
---                     Copyright (C) 2003-2014, AdaCore                     --
+--                     Copyright (C) 2003-2024, AdaCore                     --
 --                                                                          --
 --  This library is free software;  you can redistribute it and/or modify   --
 --  it under terms of the  GNU General Public License  as published by the  --
@@ -326,6 +326,6 @@ package AWS.LDAP.Client is
 private
 
    Null_Set : constant String_Set (1 .. 0) :=
-                (1 .. 0 => Null_Unbounded_String);
+                [1 .. 0 => Null_Unbounded_String];
 
 end AWS.LDAP.Client;
