@@ -902,7 +902,7 @@ package body SOAP.Message.XML is
          S.A_State := A_Type;
 
          while Field /= null loop
-            K := K + 1;
+            K := @ + 1;
 
             Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 256);
 
@@ -1553,7 +1553,7 @@ package body SOAP.Message.XML is
          S.A_State := Void;
 
          while Field /= null loop
-            K := K + 1;
+            K := @ + 1;
             Add_Object (OS, K, +Parse_Param (Field, LQ_Name, S), 25);
             Field := Next_Sibling (Field);
          end loop;

@@ -145,7 +145,7 @@ package body AWS.Config.Ini is
       while not Text_IO.End_Of_File (File) loop
 
          Text_IO.Get_Line (File, Buffer, Last);
-         Line := Line + 1;
+         Line := @ + 1;
 
          --  Remove comments
 

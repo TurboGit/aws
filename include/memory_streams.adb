@@ -138,7 +138,7 @@ package body Memory_Streams is
          end;
       end if;
 
-      Stream.Length := Stream.Length + Value'Length;
+      Stream.Length := @ + Value'Length;
    end Append;
 
    ------------
@@ -169,7 +169,7 @@ package body Memory_Streams is
       end if;
 
       Stream.Last_Length := Data'Length;
-      Stream.Length      := Stream.Length + Data'Length;
+      Stream.Length      := @ + Data'Length;
    end Append;
 
    procedure Append
@@ -196,7 +196,7 @@ package body Memory_Streams is
       end if;
 
       Stream.Last_Length := Data'Length;
-      Stream.Length      := Stream.Length + Data'Length;
+      Stream.Length      := @ + Data'Length;
    end Append;
 
    -----------
@@ -298,10 +298,10 @@ package body Memory_Streams is
 
       loop
          if B.Next = null then
-            S := S + Stream.Last_Length;
+            S := @ + Stream.Last_Length;
             exit;
          else
-            S := S + Length (B);
+            S := @ + Length (B);
          end if;
 
          B := B.Next;
@@ -440,7 +440,7 @@ package body Memory_Streams is
 
          while Idx < To loop
             Stream.Current := Stream.Current.Next;
-            Idx := Idx + Length (Stream.Current);
+            Idx := @ + Length (Stream.Current);
          end loop;
 
          Stream.Current_Offset := Last (Stream.Current) + To - Idx;

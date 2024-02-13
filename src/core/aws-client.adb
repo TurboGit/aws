@@ -378,7 +378,7 @@ package body AWS.Client is
       else
          Result := Response.Empty;
 
-         Try_Count := Try_Count - 1;
+         Try_Count := @ - 1;
       end if;
 
       Disconnect (Connection);
