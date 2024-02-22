@@ -89,7 +89,93 @@ package body AWS.MIME is
       --  Add Filename to the set of known content type regular expressions
 
    private
-      Ext_Set : Key_Value.Map;
+      Ext_Set : Key_Value.Map :=
+                  [ --  Text
+
+                    "css"     => Text_CSS,
+                    "html"    => Text_HTML,
+                    "htm"     => Text_HTML,
+                    "txt"     => Text_Plain,
+                    "ada"     => Text_Plain,
+                    "ads"     => Text_Plain,
+                    "adb"     => Text_Plain,
+                    "c"       => Text_Plain,
+                    "h"       => Text_Plain,
+                    "xml"     => Text_XML,
+                    "sgml"    => Text_X_SGML,
+                    "sgm"     => Text_X_SGML,
+                    "js"      => Text_Javascript,
+
+                    --  Image
+
+                    "gif"     => Image_Gif,
+                    "jpg"     => Image_Jpeg,
+                    "jpeg"    => Image_Jpeg,
+                    "jpe"     => Image_Jpeg,
+                    "png"     => Image_Png,
+                    "tiff"    => Image_Tiff,
+                    "svg"     => Image_SVG,
+                    "tif"     => Image_Tiff,
+                    "pnm"     => Image_X_Portable_Anymap,
+                    "pbm"     => Image_X_Portable_Bitmap,
+                    "pgm"     => Image_X_Portable_Graymap,
+                    "ppm"     => Image_X_Portable_Pixmap,
+                    "rgb"     => Image_X_RGB,
+                    "xbm"     => Image_X_Xbitmap,
+                    "xpm"     => Image_X_Xpixmap,
+                    "xwd"     => Image_X_Xwindowdump,
+
+                    --  Application
+
+                    "ps"      => Application_Postscript,
+                    "eps"     => Application_Postscript,
+                    "ai"      => Application_Postscript,
+                    "pdf"     => Application_Pdf,
+                    "zip"     => Application_Zip,
+                    "iso"     => Application_Octet_Stream,
+                    "exe"     => Application_Octet_Stream,
+                    "hqx"     => Application_Mac_Binhex40,
+                    "doc"     => Application_Msword,
+                    "ppt"     => Application_Powerpoint,
+                    "rtf"     => Application_Rtf,
+                    "Z"       => Application_X_Compress,
+                    "gtar"    => Application_X_GTar,
+                    "gz"      => Application_X_GZip,
+                    "latex"   => Application_X_Latex,
+                    "sh"      => Application_X_Sh,
+                    "shar"    => Application_X_Shar,
+                    "tar"     => Application_X_Tar,
+                    "tgz"     => Application_X_GZip,
+                    "tcl"     => Application_X_Tcl,
+                    "tex"     => Application_X_Tex,
+                    "texinfo" => Application_X_Texinfo,
+                    "texi"    => Application_X_Texinfo,
+                    "t"       => Application_X_Troff,
+                    "tr"      => Application_X_Troff,
+                    "roff"    => Application_X_Troff,
+                    "man"     => Application_X_Troff_Man,
+
+                    --  Audio
+
+                    "au"      => Audio_Basic,
+                    "snd"     => Audio_Basic,
+                    "mpga"    => Audio_Mpeg,
+                    "mp2"     => Audio_Mpeg,
+                    "mp3"     => Audio_Mpeg,
+                    "wav"     => Audio_X_Wav,
+                    "ram"     => Audio_X_Pn_Realaudio,
+                    "rpm"     => Audio_X_Pn_Realaudio_Plugin,
+                    "ra"      => Audio_X_Realaudio,
+
+                    --  Video
+
+                    "mpeg"    => Video_Mpeg,
+                    "mpg"     => Video_Mpeg,
+                    "mpe"     => Video_Mpeg,
+                    "qt"      => Video_Quicktime,
+                    "mov"     => Video_Quicktime,
+                    "avi"     => Video_X_Msvideo ];
+
       R_Table : Node_Access;
       Last    : Node_Access;
    end Set;
@@ -173,92 +259,6 @@ package body AWS.MIME is
       AWS_MIME : constant String := Config.MIME_Types;
 
    begin
-      --  Text
-
-      Set.Add_Extension ("css",     Text_CSS);
-      Set.Add_Extension ("html",    Text_HTML);
-      Set.Add_Extension ("htm",     Text_HTML);
-      Set.Add_Extension ("txt",     Text_Plain);
-      Set.Add_Extension ("ada",     Text_Plain);
-      Set.Add_Extension ("ads",     Text_Plain);
-      Set.Add_Extension ("adb",     Text_Plain);
-      Set.Add_Extension ("c",       Text_Plain);
-      Set.Add_Extension ("h",       Text_Plain);
-      Set.Add_Extension ("xml",     Text_XML);
-      Set.Add_Extension ("sgml",    Text_X_SGML);
-      Set.Add_Extension ("sgm",     Text_X_SGML);
-      Set.Add_Extension ("js",      Text_Javascript);
-
-      --  Image
-
-      Set.Add_Extension ("gif",     Image_Gif);
-      Set.Add_Extension ("jpg",     Image_Jpeg);
-      Set.Add_Extension ("jpeg",    Image_Jpeg);
-      Set.Add_Extension ("jpe",     Image_Jpeg);
-      Set.Add_Extension ("png",     Image_Png);
-      Set.Add_Extension ("tiff",    Image_Tiff);
-      Set.Add_Extension ("svg",     Image_SVG);
-      Set.Add_Extension ("tif",     Image_Tiff);
-      Set.Add_Extension ("pnm",     Image_X_Portable_Anymap);
-      Set.Add_Extension ("pbm",     Image_X_Portable_Bitmap);
-      Set.Add_Extension ("pgm",     Image_X_Portable_Graymap);
-      Set.Add_Extension ("ppm",     Image_X_Portable_Pixmap);
-      Set.Add_Extension ("rgb",     Image_X_RGB);
-      Set.Add_Extension ("xbm",     Image_X_Xbitmap);
-      Set.Add_Extension ("xpm",     Image_X_Xpixmap);
-      Set.Add_Extension ("xwd",     Image_X_Xwindowdump);
-
-      --  Application
-
-      Set.Add_Extension ("ps",      Application_Postscript);
-      Set.Add_Extension ("eps",     Application_Postscript);
-      Set.Add_Extension ("ai",      Application_Postscript);
-      Set.Add_Extension ("pdf",     Application_Pdf);
-      Set.Add_Extension ("zip",     Application_Zip);
-      Set.Add_Extension ("iso",     Application_Octet_Stream);
-      Set.Add_Extension ("exe",     Application_Octet_Stream);
-      Set.Add_Extension ("hqx",     Application_Mac_Binhex40);
-      Set.Add_Extension ("doc",     Application_Msword);
-      Set.Add_Extension ("ppt",     Application_Powerpoint);
-      Set.Add_Extension ("rtf",     Application_Rtf);
-      Set.Add_Extension ("Z",       Application_X_Compress);
-      Set.Add_Extension ("gtar",    Application_X_GTar);
-      Set.Add_Extension ("gz",      Application_X_GZip);
-      Set.Add_Extension ("latex",   Application_X_Latex);
-      Set.Add_Extension ("sh",      Application_X_Sh);
-      Set.Add_Extension ("shar",    Application_X_Shar);
-      Set.Add_Extension ("tar",     Application_X_Tar);
-      Set.Add_Extension ("tgz",     Application_X_GZip);
-      Set.Add_Extension ("tcl",     Application_X_Tcl);
-      Set.Add_Extension ("tex",     Application_X_Tex);
-      Set.Add_Extension ("texinfo", Application_X_Texinfo);
-      Set.Add_Extension ("texi",    Application_X_Texinfo);
-      Set.Add_Extension ("t",       Application_X_Troff);
-      Set.Add_Extension ("tr",      Application_X_Troff);
-      Set.Add_Extension ("roff",    Application_X_Troff);
-      Set.Add_Extension ("man",     Application_X_Troff_Man);
-
-      --  Audio
-
-      Set.Add_Extension ("au",      Audio_Basic);
-      Set.Add_Extension ("snd",     Audio_Basic);
-      Set.Add_Extension ("mpga",    Audio_Mpeg);
-      Set.Add_Extension ("mp2",     Audio_Mpeg);
-      Set.Add_Extension ("mp3",     Audio_Mpeg);
-      Set.Add_Extension ("wav",     Audio_X_Wav);
-      Set.Add_Extension ("ram",     Audio_X_Pn_Realaudio);
-      Set.Add_Extension ("rpm",     Audio_X_Pn_Realaudio_Plugin);
-      Set.Add_Extension ("ra",      Audio_X_Realaudio);
-
-      --  Video
-
-      Set.Add_Extension ("mpeg",    Video_Mpeg);
-      Set.Add_Extension ("mpg",     Video_Mpeg);
-      Set.Add_Extension ("mpe",     Video_Mpeg);
-      Set.Add_Extension ("qt",      Video_Quicktime);
-      Set.Add_Extension ("mov",     Video_Quicktime);
-      Set.Add_Extension ("avi",     Video_X_Msvideo);
-
       --  Check if there is a aws.mime file to read
 
       if Utils.Is_Regular_File (AWS_MIME) then
