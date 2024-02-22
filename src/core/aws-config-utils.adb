@@ -40,8 +40,8 @@ package body AWS.Config.Utils is
 
    procedure Parse_Strings (Vector : in out SV.Vector; Line : String) is
       use Ada.Strings;
-      First  : Positive := Line'First;
-      Last   : Natural;
+      First : Positive := Line'First;
+      Last  : Natural;
 
       procedure Append (Item : String);
 

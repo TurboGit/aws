@@ -164,7 +164,6 @@ package body AWS.Config.Ini is
                K_First, K_Last);
 
             if K_Last /= 0 then
-
                declare
                   Key   : constant String := Buffer (K_First .. K_Last);
                   Value : constant String :=

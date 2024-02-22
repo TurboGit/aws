@@ -243,8 +243,8 @@ package body AWS.Headers is
          Add (Headers,
            Name  => Line (Line'First .. Delimiter_Index - 1),
            Value => Fixed.Trim
-             (Line (Delimiter_Index + 1 .. Line'Last),
-              Side => Both));
+                      (Line (Delimiter_Index + 1 .. Line'Last),
+                       Side => Both));
       end Parse_Header_Line;
 
       End_Of_Message : constant String := "";
