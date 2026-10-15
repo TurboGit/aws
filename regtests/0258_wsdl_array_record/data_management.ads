@@ -46,4 +46,7 @@ package Data_Management is
      (A          : String;
       Facilities : Facilities_Type_Pkg.Vector) return Boolean;
 
+   procedure Call1 (A : Facility_Type);
+   procedure Call2 (A : Field_Array_Pkg.Vector);
+
 end Data_Management;

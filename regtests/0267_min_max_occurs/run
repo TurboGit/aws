@@ -1,0 +1,2 @@
+# wsdl2aws -f -doc occurs.wsdl
+gprbuild occurs.gpr
